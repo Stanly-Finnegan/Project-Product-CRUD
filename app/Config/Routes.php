@@ -18,4 +18,8 @@ $routes->get('/getImageData/(:segment)', 'DataController::getImageData/$1');
 $routes->put('/changeImageShow', 'DataController::changeImageShow');
 $routes->delete('/deleteProductImage/(:segment)', 'DataController::deleteProductImage/$1');
 $routes->delete('/deleteProduct/(:segment)', 'DataController::deleteProduct/$1');
+$routes->get('/getProductOrderData', 'DataController::getProductOrderData');
+$routes->get('/getProductOrderData/(:segment)', 'DataController::getProductOrderDataSearch/$1');
+$routes->post('/insertOrder', 'DataController::insertOrder');
+
 

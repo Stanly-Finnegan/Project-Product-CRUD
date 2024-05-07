@@ -21,7 +21,6 @@ class ProductImageInitial extends Migration
             'product_image_uuid' =>[
                 'type' => 'CHAR',
                 'constraint' => '36',
-                'null' => false
             ],
             'product_image' =>[
                 'type' => 'VARCHAR',

@@ -327,8 +327,77 @@ class DataController extends BaseController{
     $db->transRollback();
     return  $this->fail('Error deleting product or related images. Please try again');
 
+  }
 
-    
+  public function getProductOrderData () {
+    $productModel = new ProductModel();
+    $productImageModel = new ProductImageModel();
+
+    $productData = $productModel->findAll();
+    $result = [];
+    foreach ($productData as $value) {
+      $productImageData = $productImageModel->select('product_image')->where('product_id', $value->product_id)->findAll();
+
+      $tempProductData = [
+        'title' => $value->product_title,
+        'price' => $value->product_price,
+        'id' => $value->product_uuid,
+        'quantity' => null,
+
+      ];
+      $tempImageData = [];
+
+      foreach ($productImageData as $data) {
+        array_push($tempImageData,[
+          'image' => $data->product_image
+        ]);
+      }
+
+      array_push($result,[
+        'product' => $tempProductData,
+        'image' => $tempImageData
+      ]);
+    }
+
+    return $this->respond($result);
+  }
+
+  public function getProductOrderDataSearch ($data) {
+    $productModel = new ProductModel();
+    $productImageModel = new ProductImageModel();
+
+    $productData = $productModel->like('product_title', $data)->findAll();
+    $result = [];
+    foreach ($productData as $value) {
+      $productImageData = $productImageModel->select('product_image')->where('product_id', $value->product_id)->findAll();
+
+      $tempProductData = [
+        'title' => $value->product_title,
+        'price' => $value->product_price,
+        'id' => $value->product_uuid,
+        'quantity' => null,
+      ];
+      $tempImageData = [];
+
+      foreach ($productImageData as $data) {
+        array_push($tempImageData,[
+          'image' => $data->product_image
+        ]);
+      }
+
+      array_push($result,[
+        'product' => $tempProductData,
+        'image' => $tempImageData
+      ]);
+    }
+
+    return $this->respond($result);
+  }
+
+  public function insertOrder (){
+    $post_data = $this->request->getPost();
+
+    var_dump($post_data);
   }
 
 }
