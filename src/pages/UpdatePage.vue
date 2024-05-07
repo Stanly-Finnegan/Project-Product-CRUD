@@ -42,7 +42,7 @@ const paramData = ref(route.params.id)
 const checkToken = () => {
   api.get('checkToken').then(() => {
   }).catch(() => {
-    router.push('/')
+    router.push({ name: 'LoginPage' })
   })
 }
 
@@ -72,7 +72,7 @@ const btnUpdate = () => {
     status: status.value,
     id: paramData.value
   }).then(() => {
-    router.push({ name: 'HomePage' })
+    router.push({ name: 'ProductPage' })
   }).catch((err) => {
     console.log(err)
   })

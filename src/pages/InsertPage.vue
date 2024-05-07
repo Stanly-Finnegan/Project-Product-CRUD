@@ -54,7 +54,7 @@ const btnInsert = () => {
     price: price.value,
     status: status.value
   }).then(() => {
-    router.push({ name: 'HomePage' })
+    router.push({ name: 'ProductPage' })
   }).catch((err) => {
     console.log(err)
   })

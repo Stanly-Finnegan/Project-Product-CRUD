@@ -39,7 +39,7 @@ const checkToken = () => {
   api.get('checkToken').then(() => {
   }).catch((err) => {
     console.log(err.response.status)
-    router.push({ name: 'HomePage' })
+    router.push({ name: 'LoginPage' })
   })
 }
 checkToken()
