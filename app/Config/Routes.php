@@ -21,5 +21,7 @@ $routes->delete('/deleteProduct/(:segment)', 'DataController::deleteProduct/$1')
 $routes->get('/getProductOrderData', 'DataController::getProductOrderData');
 $routes->get('/getProductOrderData/(:segment)', 'DataController::getProductOrderDataSearch/$1');
 $routes->post('/insertOrder', 'DataController::insertOrder');
+$routes->get('/getOrder', 'DataController::getOrder');
+$routes->delete('/deleteOrder/(:segment)', 'DataController::deleteOrder/$1');
 
 

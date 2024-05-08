@@ -2,13 +2,18 @@
 
 namespace App\Controllers;
 
+use App\Entities\OrderItem;
 use App\Entities\Product;
 use App\Models\AdminTokenModel;
+use App\Models\OrderItemModel;
+use App\Models\OrderModel;
 use App\Models\ProductImageModel;
 use App\Models\ProductModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\DataCaster\Cast\BooleanCast;
+use Config\Database;
 use PhpParser\Node\Expr\Cast\Bool_;
+use PhpParser\Node\Stmt\Echo_;
 use Ramsey\Uuid\Type\Integer;
 use Ramsey\Uuid\Uuid;
 
@@ -395,9 +400,100 @@ class DataController extends BaseController{
   }
 
   public function insertOrder (){
-    $post_data = $this->request->getPost();
+    $db = db_connect();
 
-    var_dump($post_data);
+    $db->transBegin();
+    $post_data = $this->request->getPost();
+    $orderModel = new OrderModel();
+    $orderItemModel = new OrderItemModel();
+    $productModel = new ProductModel();
+
+    $newData = json_decode($post_data['data'],true);
+
+
+    $today = date('Ymd');
+    $lastOrder = $orderModel->like('order_number', $today)->first();
+    if($lastOrder === null || $lastOrder === ''){
+      $order_number = $today . '001';
+    }
+    else{
+      $lastNumber = intval(substr($lastOrder->order_number, -3));
+      $lastNumber = $lastNumber +1;
+      $lastNumber = sprintf('%03d', $lastNumber);
+      $order_number = $today. $lastNumber;
+    }
+
+    $orderData = [
+      'order_uuid' => Uuid::uuid4(),
+      'order_number' => $order_number,
+      'order_total_price' => $post_data['total'],
+      'order_status' => 1,
+      'created_at' => date('Y-m-d H:i:s'),
+      'updated_at' => null,
+      'deleted_at' => null
+    ];
+
+    if(!$orderModel->insert($orderData)){
+      return $this->fail('Fail to add order');
+    }
+
+    $orderID = $orderModel->where('order_number', $order_number)->first();
+    foreach ($newData as $item) {
+      $productData = $productModel->where('product_uuid', $item['id'])->first();
+      $orderItemData = [
+        'order_id' => $orderID->order_id,
+        'product_id' => $productData->product_id,
+        'order_item_uuid' => Uuid::uuid4(),
+        'order_item_quantity' => $item['quantity'],
+        'order_item_total_price' => $item['price'],
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => null,
+        'deleted_at' => null
+      ];
+
+      if(!$orderItemModel->insert($orderItemData)){
+        $db->transRollback();
+        return $this->fail('Fail to add order');
+      }
+    }
+
+    $db->transCommit();
+    return $this->respond('Success to add order');
+
+  }
+
+  public function getOrder (){
+    $orderModel = new OrderModel();
+    $orderData = $orderModel->findAll();
+
+    
+
+    $result = [];
+    foreach($orderData as $data){
+      $date = explode( ' ' ,$data->created_at);
+      array_push($result,[
+        'order_number' => $data->order_number,
+        'date_time' => $date[0]. ' '. $date[1],
+        'total_price' => $data->order_total_price,
+        'status' => $data->order_status === '1' ? 'Paid':'Pending' ,
+        'id' => $data->order_uuid
+      ]);
+    }
+
+
+    return $this->respond($result);
+
+  }
+
+  public function deleteOrder ($data){
+    $orderModel = new OrderModel();
+    
+    if(!$orderModel->where('order_uuid', $data)->delete()){
+      return $this->fail('Failed to delete the data');
+    }
+
+    return $this->respond('Success delete data');
+
   }
 
 }
