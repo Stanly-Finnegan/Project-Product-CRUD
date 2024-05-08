@@ -10,26 +10,11 @@
       <q-td :props="props">
         <q-btn-dropdown color="primary">
           <q-list>
-            <q-item clickable v-close-popup @click="btnImage(props.row)">
-              <q-item-section>
-                <q-item-label>
-                  Images
-                </q-item-label>
-              </q-item-section>
-            </q-item>
 
-            <q-item clickable v-close-popup @click="btnUpdate(props.row)">
+            <q-item clickable v-close-popup @click="btnDetail(props.row)">
               <q-item-section>
                 <q-item-label>
-                  Update
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup @click="btnShow(props.row)">
-              <q-item-section>
-                <q-item-label>
-                  Show / Hide
+                  Detail
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -63,14 +48,15 @@ const router = useRouter()
 const rows = ref([])
 
 const columns = [
-  { name: 'title', align: 'center', label: 'Title', field: 'title' },
-  { name: 'price', align: 'center', label: 'Price', field: 'price' },
+  { name: 'order_number', align: 'center', label: 'Order Number', field: 'order_number' },
+  { name: 'date_time', align: 'center', label: 'Date Time', field: 'date_time' },
+  { name: 'total_price', align: 'center', label: 'Total Price', field: 'total_price' },
   { name: 'status', align: 'center', label: 'Show/Hide', field: 'status' },
-  { name: 'action', align: 'center', field: 'action', label: 'Action' }
+  { name: 'action', align: 'center', field: 'action', label: 'Actions' }
 ]
 
-const getProduct = () => {
-  api.get('getProduct')
+const getOrder = () => {
+  api.get('getOrder')
     .then((response) => {
       console.log(response.data)
       rows.value = response.data
@@ -79,7 +65,7 @@ const getProduct = () => {
     })
 }
 
-getProduct()
+getOrder()
 
 const btnInsert = () => {
   api.get('checkToken')
@@ -90,28 +76,14 @@ const btnInsert = () => {
     })
 }
 
-const btnShow = (data) => {
-  api.put('changeShow', {
-    id: data.id,
-    show: !data.show
-  })
-    .then((response) => {
-      getProduct()
-    })
-}
-
-const btnUpdate = (data) => {
-  router.push({ name: 'UpdatePage', params: { id: data.id } })
-}
-
-const btnImage = (data) => {
-  router.push({ name: 'ImagePage', params: { id: data.id } })
+const btnDetail = (data) => {
+  console.log('detail pushed')
 }
 
 const btnDelete = (data) => {
-  api.delete('deleteProduct/' + data.id)
+  api.delete('deleteOrder/' + data.id)
     .then(() => {
-      getProduct()
+      getOrder()
     }).catch((err) => {
       console.log(err)
     })

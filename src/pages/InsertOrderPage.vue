@@ -18,7 +18,7 @@
 
           <template  v-slot:top-right>
             <div class="row q-gutter-x-md">
-              <q-btn color="primary" label="Cancel" />
+              <q-btn color="primary" label="Cancel" @click="router.replace({name:'OrderPage'})"/>
               <q-btn color="primary" label="Submit" @click="insertOrder"/>
             </div>
           </template>
@@ -26,7 +26,7 @@
 
         <div class="row " style="width: 100%;">
           <h4>Total Price </h4>
-          <h4 class="q-ml-xl">Rp. {{totalPrice}}</h4>
+          <h4 class="q-ml-xl">Rp. {{totalAllPrice}}</h4>
         </div>
 
         <div style="width: 100%;">
@@ -98,6 +98,7 @@ const productCart = ref({
 })
 
 const search = ref('')
+const totalAllPrice = ref(0)
 
 const getProductData = () => {
   api.get('getProductOrderData')
@@ -116,6 +117,13 @@ getProductData()
 
 watch(() => search.value, (newVal) => {
   getProductDataSearch(newVal)
+})
+
+watch(() => rows.value, (newVal) => {
+  totalAllPrice.value = 0
+  rows.value.map(item => (
+    totalAllPrice.value += item.totalPrice
+  ))
 })
 
 const checkToken = () => {
@@ -155,13 +163,11 @@ const deleteCart = (data) => {
 }
 
 const insertOrder = () => {
-  rows.value = JSON.parse(localStorage.getItem('cart'))
-  console.log(productCart.value)
   api.post('insertOrder', {
-    data: rows.value,
-    test: productCart.value
+    data: localStorage.getItem('cart'),
+    total: totalAllPrice.value
   }).then((Response) => {
-
+    router.push({ name: 'OrderPage' })
   })
 }
 
