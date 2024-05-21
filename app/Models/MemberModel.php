@@ -4,24 +4,24 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class OrderModel extends Model{
-  protected $table = 'order_ms';
-  protected $primaryKey = 'order_id';
+class MemberModel extends Model{
+  protected $table = 'member_ms';
+  protected $primaryKey = 'member_id';
   protected $useAutoIncrement = true;
   protected $useSoftDeletes = false;
   protected $allowedFields = [
-    'order_uuid',
-    'member_id',
-    'order_number',
-    'order_total_price',
-    'order_status',
-    'order_address',
+    'member_uuid',
+    'member_email',
+    'member_password',
+    'member_name',
+    'member_phone',
+    'member_active',
     'created_at',
     'updated_at',
     'deleted_at'
   ];
 
-  protected $returnType = \App\Entities\Order::class;
+  protected $returnType = \App\Entities\Member::class;
 
 
   protected $useTimestamps = true;

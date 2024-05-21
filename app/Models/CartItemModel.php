@@ -4,24 +4,24 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class OrderModel extends Model{
-  protected $table = 'order_ms';
-  protected $primaryKey = 'order_id';
+class CartItemModel extends Model{
+  protected $table = 'cart_item_ms';
+  protected $primaryKey = 'cart_item_id';
   protected $useAutoIncrement = true;
   protected $useSoftDeletes = false;
   protected $allowedFields = [
-    'order_uuid',
-    'member_id',
-    'order_number',
-    'order_total_price',
-    'order_status',
-    'order_address',
+    'cart_id',
+    'product_id',
+    'cart_item_uuid',
+    'cart_item_quantity',
+    'cart_item_price',
+    'cart_item_total_price',
     'created_at',
     'updated_at',
     'deleted_at'
   ];
 
-  protected $returnType = \App\Entities\Order::class;
+  protected $returnType = \App\Entities\CartItem::class;
 
 
   protected $useTimestamps = true;

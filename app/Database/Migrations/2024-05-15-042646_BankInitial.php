@@ -3,55 +3,54 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
-use DateTime;
 
-class OrderInitial extends Migration
+class BankInitial extends Migration
 {
     public function up()
     {
         $this->forge->addField([
-            'order_id' => [
+            'bank_id' =>[
                 'type' => 'BIGINT',
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'member_id' =>[
-                'type' => 'BIGINT',
-                'unsigned' => true,
-            ],
-            'order_uuid' =>[
+            'bank_uuid' =>[
                 'type' => 'CHAR',
-                'constraint'=> '36',
+                'constraint' => '36',
             ],
-            'order_number' =>[
+            'bank_name' =>[
                 'type' => 'VARCHAR',
-                'constraint'=> '100',
+                'constraint' => '100',
             ],
-            'order_total_price' =>[
-                'type' => 'DOUBLE',
+            'bank_account_number' =>[
+                'type' => 'VARCHAR', 
+                'constraint' => '20',
             ],
-            'order_status' =>[
+            'bank_order' =>[
                 'type' => 'INT',
+            ],
+            'bank_show' =>[
+                'type' => 'BOOLEAN',
             ],
             'created_at' =>[
                 'type' => 'DATETIME',
-                'null' => true
+                'null' => true,
             ],
             'updated_at' =>[
                 'type' => 'DATETIME',
-                'null' => true
+                'null' => true,
             ],
             'deleted_at' =>[
                 'type' => 'DATETIME',
-                'null' => true
+                'null' => true,
             ]
         ]);
-        $this->forge->addKey('order_id', true);
-        $this->forge->createTable('order_ms');
+        $this->forge->addKey('bank_id', true);
+        $this->forge->createTable('bank_ms');
     }
 
     public function down()
     {
-        $this->forge->dropTable('order_ms');
+        $this->forge->dropTable('bank_ms');
     }
 }

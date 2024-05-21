@@ -4,19 +4,19 @@ namespace App\Entities;
 
 use CodeIgniter\Entity\Entity;
 
-class AdminToken extends Entity{
+class MemberToken extends Entity{
 
   protected $atributes = [
-    'admin_token_id' =>  null,
-    'admin_id' => null,
-    'admin_token_uuid' => null,
+    'member_token_id' =>  null,
+    'member_id' => null,
+    'member_token_uuid' => null,
     'created_at' => null,
     'updated_at' => null,
     'deleted_at' => null
   ];
 
   // protected $casts =[
-  //   'admin_id' => 'INT'
+  //   'member_id' => 'INT'
   // ];
 
 }

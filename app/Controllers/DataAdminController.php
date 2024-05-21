@@ -19,7 +19,7 @@ use Ramsey\Uuid\Uuid;
 
 use function PHPUnit\Framework\isNull;
 
-class DataController extends BaseController{
+class DataAdminController extends BaseController{
 
   use ResponseTrait;
 
@@ -37,7 +37,10 @@ class DataController extends BaseController{
   }
 
   public function insertProduct () {
+    $validatoin = \Config\Services::Validation();
+    $validatoin->setRuleGroup('productInsertValidation');
 
+    
     if(!$this->checkToken()){
       return $this->fail('Invalid Token');
     }
@@ -53,7 +56,11 @@ class DataController extends BaseController{
       $booleanProduct_show = false;
     }
 
-    $floatProduct_price = (float)$post_data['price'];
+    if($post_data['price']){
+      $floatProduct_price = (float)$post_data['price'];
+    }else{
+      $floatProduct_price = null;
+    }
 
     $data = [
       'product_uuid' => Uuid::uuid4(),
@@ -65,6 +72,10 @@ class DataController extends BaseController{
       'updated_at' => null,
       'deleted_at' => null
     ];
+
+    if($validatoin->run($data) === false){
+      return $this->fail($validatoin->getErrors());
+    }
 
     if(!$productModel->insert($data) ){
       return $this->fail('Fail to add product');
@@ -228,6 +239,7 @@ class DataController extends BaseController{
 
         if(!$productImageModel->insert($imageData)){
           array_push($failedData, $imageData);
+          unlink($path.'/'.$newname);
           continue;
         }
 

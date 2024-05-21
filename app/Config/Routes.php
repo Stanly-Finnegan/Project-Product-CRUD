@@ -6,22 +6,34 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
-$routes->post('/loginUser','UserController::loginUser');
-$routes->get('/checkToken', 'UserController::checkToken');
-$routes->get('/getProduct', 'DataController::getProduct');
-$routes->post('/insertProduct', 'DataController::insertProduct');
-$routes->put('/changeShow', 'DataController::changeShow');
-$routes->put('/updateProduct', 'DataController::updateProduct');
-$routes->get('/getUpdateData/(:segment)', 'DataController::getUpdateData/$1');
-$routes->post('/insertImageProduct', 'DataController::insertImageProduct');
-$routes->get('/getImageData/(:segment)', 'DataController::getImageData/$1');
-$routes->put('/changeImageShow', 'DataController::changeImageShow');
-$routes->delete('/deleteProductImage/(:segment)', 'DataController::deleteProductImage/$1');
-$routes->delete('/deleteProduct/(:segment)', 'DataController::deleteProduct/$1');
-$routes->get('/getProductOrderData', 'DataController::getProductOrderData');
-$routes->get('/getProductOrderData/(:segment)', 'DataController::getProductOrderDataSearch/$1');
-$routes->post('/insertOrder', 'DataController::insertOrder');
-$routes->get('/getOrder', 'DataController::getOrder');
-$routes->delete('/deleteOrder/(:segment)', 'DataController::deleteOrder/$1');
+$routes->post('/loginAdmin','AdminController::loginUser');
+$routes->get('/checkToken', 'AdminController::checkToken');
+$routes->get('/getProduct', 'DataAdminController::getProduct');
+$routes->post('/insertProduct', 'DataAdminController::insertProduct');
+$routes->put('/changeShow', 'DataAdminController::changeShow');
+$routes->put('/updateProduct', 'DataAdminController::updateProduct');
+$routes->get('/getUpdateData/(:segment)', 'DataAdminController::getUpdateData/$1');
+$routes->post('/insertImageProduct', 'DataAdminController::insertImageProduct');
+$routes->get('/getImageData/(:segment)', 'DataAdminController::getImageData/$1');
+$routes->put('/changeImageShow', 'DataAdminController::changeImageShow');
+$routes->delete('/deleteProductImage/(:segment)', 'DataAdminController::deleteProductImage/$1');
+$routes->delete('/deleteProduct/(:segment)', 'DataAdminController::deleteProduct/$1');
+$routes->get('/getProductOrderData', 'DataAdminController::getProductOrderData');
+$routes->get('/getProductOrderData/(:segment)', 'DataAdminController::getProductOrderDataSearch/$1');
+$routes->post('/insertOrder', 'DataAdminController::insertOrder');
+$routes->get('/getOrder', 'DataAdminController::getOrder');
+$routes->delete('/deleteOrder/(:segment)', 'DataAdminController::deleteOrder/$1');
 
-
+// MEMBER ROUTES
+$routes->post('/loginMember', 'MemberController::loginMember');
+$routes->post('/registerMember', 'MemberController::registerMember');
+$routes->get('/getProductMemberData', 'DataMemberController::getProductMemberData');
+$routes->get('/getProductMemberDetailData/(:segment)', 'DataMemberController::getProductMemberDetailData/$1');
+$routes->post('/addCartMemberItem', 'DataMemberController::addCartMemberItem');
+$routes->get('/getCartMemberData', 'DataMemberController::getCartMemberData');
+$routes->put('/updateCartMemberData', 'DataMemberController::updateCartMemberData');
+$routes->post('/deleteSelectedMemberItem', 'DataMemberController::deleteSelectedMemberItem');
+$routes->get('/getCheckoutData', 'DataMemberController::getCheckoutData');
+$routes->post('/setMemberOrder', 'DataMemberController::setMemberOrder');
+$routes->put('/setConfirmOrder', 'DataMemberController::setConfirmOrder');
+$routes->post('/setConfirmPayment', 'DataMemberController::setConfirmPayment');

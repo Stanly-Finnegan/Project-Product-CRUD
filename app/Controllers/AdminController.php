@@ -7,7 +7,7 @@ use App\Models\AdminTokenModel;
 use CodeIgniter\API\ResponseTrait;
 use Ramsey\Uuid\Uuid;
 
-class UserController extends BaseController{
+class AdminController extends BaseController{
 
   use ResponseTrait;
 
@@ -39,10 +39,6 @@ class UserController extends BaseController{
   }
 
   public function loginUser () {
-
-    if(!$this->checkToken()){
-      return $this->fail('Invalid Token');
-    }
 
     $post_data = $this->request->getPost();
 

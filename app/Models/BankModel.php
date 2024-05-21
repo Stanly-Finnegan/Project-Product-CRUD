@@ -4,24 +4,23 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class OrderModel extends Model{
-  protected $table = 'order_ms';
-  protected $primaryKey = 'order_id';
+class BankModel extends Model{
+  protected $table = 'bank_ms';
+  protected $primaryKey = 'bank_id';
   protected $useAutoIncrement = true;
   protected $useSoftDeletes = false;
   protected $allowedFields = [
-    'order_uuid',
-    'member_id',
-    'order_number',
-    'order_total_price',
-    'order_status',
-    'order_address',
+    'bank_uuid',
+    'bank_name',
+    'bank_account_number',
+    'bank_order',
+    'bank_show',
     'created_at',
     'updated_at',
     'deleted_at'
   ];
 
-  protected $returnType = \App\Entities\Order::class;
+  protected $returnType = \App\Entities\Bank::class;
 
 
   protected $useTimestamps = true;
