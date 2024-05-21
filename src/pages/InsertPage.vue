@@ -1,12 +1,12 @@
 <template>
   <q-layout>
-    <div style="width: 100vw; height:100vh;" class="q-pa-xl column items-center">
+    <div style="width: 100vw; min-height:100vh;" class="q-pa-xl column items-center">
         <h2 class="q-mb-xl text-center">Product Insert Page</h2>
 
         <q-form class=" q-gutter-y-md column items-center "  style="width: 50%;">
           <q-input v-model="title" outlined label="Title" placeholder="Title"  class=""  style="width: 100%;"></q-input>
           <q-input v-model="description" type="textarea" outlined label="Description" placeholder="Description" class="" style="width: 100%;" ></q-input>
-          <q-input v-model="price" outlined label="Price" placeholder="Price"  class=""  style="width: 100%;"></q-input>
+          <q-input v-model="price" type="number" outlined label="Price" placeholder="Price"  class=""  style="width: 100%;"></q-input>
 
           <div class="q-mt-xl" style="width: 100%;">
             <p class="q-ma-none">Show / Hide</p>

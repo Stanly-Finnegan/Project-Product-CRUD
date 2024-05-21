@@ -16,9 +16,15 @@
            </q-td>
           </template>
 
+          <!-- <template v-slot:body-cell-quantity="props">
+            <q-td :props="props">
+              <q-input type="number" v-model="props.row.quantity" />
+            </q-td>
+          </template> -->
+
           <template  v-slot:top-right>
             <div class="row q-gutter-x-md">
-              <q-btn color="primary" label="Cancel" @click="router.replace({name:'OrderPage'})"/>
+              <q-btn color="primary" label="Cancel" @click="cancelOrder"/>
               <q-btn color="primary" label="Submit" @click="insertOrder"/>
             </div>
           </template>
@@ -45,7 +51,7 @@
                 Quantity :
                 <q-input
                 filled
-                v-model = "item.quantity"
+                v-model = "item.product.quantity"
                 type="number"
                 />
               </div>
@@ -59,7 +65,7 @@
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn @click="addCart(item)">
+              <q-btn @click="addCart(item)" :disable="isInputEmpty(item.product.quantity)">
                 add to cart
               </q-btn>
             </q-card-actions>
@@ -121,14 +127,16 @@ watch(() => search.value, (newVal) => {
 
 watch(() => rows.value, (newVal) => {
   totalAllPrice.value = 0
-  rows.value.map(item => (
-    totalAllPrice.value += item.totalPrice
-  ))
+  console.log(newVal)
+  if (newVal) {
+    rows.value.map(item => (
+      totalAllPrice.value += item.totalPrice
+    ))
+  }
 })
 
 const checkToken = () => {
   api.get('checkToken').then(() => {
-    rows.value = JSON.parse(localStorage.getItem('cart'))
   }).catch(() => {
     router.push({ name: 'LoginPage' })
   })
@@ -140,10 +148,12 @@ const addCart = (data) => {
   productCart.value.title = data.product.title
   productCart.value.price = data.product.price
   productCart.value.id = data.product.id
-  productCart.value.quantity = data.quantity
-  productCart.value.totalPrice = parseInt(data.product.price) * parseInt(data.quantity)
+  productCart.value.quantity = data.product.quantity
+  productCart.value.totalPrice = parseInt(data.product.price) * parseInt(data.product.quantity)
 
-  rows.value = JSON.parse(localStorage.getItem('cart'))
+  if (localStorage.getItem('cart')) {
+    rows.value = JSON.parse(localStorage.getItem('cart'))
+  }
   rows.value.push(productCart.value)
 
   localStorage.setItem('cart', JSON.stringify(rows.value))
@@ -168,7 +178,21 @@ const insertOrder = () => {
     total: totalAllPrice.value
   }).then((Response) => {
     router.push({ name: 'OrderPage' })
+    localStorage.removeItem('cart')
   })
+}
+
+const cancelOrder = () => {
+  router.replace({ name: 'OrderPage' })
+  localStorage.removeItem('cart')
+}
+
+const isInputEmpty = (data) => {
+  if (data) {
+    return false
+  }
+
+  return true
 }
 
 </script>

@@ -51,16 +51,16 @@ const isPwd = ref(true)
 const email = ref('')
 const password = ref('')
 
-// const checkToken = () => {
-//   api.get('checkToken').then(() => {
-//     router.push('home')
-//   })
-// }
+const checkToken = () => {
+  api.get('checkToken').then(() => {
+    router.push({ name: 'HomePage' })
+  })
+}
 
-// checkToken()
+checkToken()
 
 const btnLogin = () => {
-  api.post('loginUser', {
+  api.post('loginAdmin', {
     email: email.value,
     password: password.value
   }).then((response) => {

@@ -14,6 +14,7 @@
 
 <script setup>
 // import { ref } from 'vue'
+import { api } from 'src/boot/axios'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -21,6 +22,15 @@ const router = useRouter()
 const toProduct = () => {
   router.push({ name: 'ProductPage' })
 }
+
+const checkToken = () => {
+  api.get('checkToken').then(() => {
+  }).catch(() => {
+    router.push({ name: 'LoginPage' })
+  })
+}
+
+checkToken()
 
 const toOrder = () => {
   router.push({ name: 'OrderPage' })

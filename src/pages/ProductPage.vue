@@ -70,7 +70,18 @@ const columns = [
   { name: 'action', align: 'center', field: 'action', label: 'Action' }
 ]
 
+const checkToken = () => {
+  api.get('checkToken').then(() => {
+  }).catch(() => {
+    router.push('home')
+  })
+}
+
+checkToken()
+
 const getProduct = () => {
+  checkToken()
+
   api.get('getProduct')
     .then((response) => {
       console.log(response.data)
@@ -92,6 +103,8 @@ const btnInsert = () => {
 }
 
 const btnShow = (data) => {
+  checkToken()
+
   api.put('changeShow', {
     id: data.id,
     show: !data.show
@@ -110,6 +123,8 @@ const btnImage = (data) => {
 }
 
 const btnDelete = (data) => {
+  checkToken()
+
   api.delete('deleteProduct/' + data.id)
     .then(() => {
       getProduct()
