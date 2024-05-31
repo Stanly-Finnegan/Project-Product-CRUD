@@ -11,6 +11,7 @@ class Bank extends Entity{
     'bank_uuid' => null,
     'bank_name' => null,
     'bank_account_number' => null,
+    'bank_account_name' => null,
     'bank_order' => null,
     'bank_show' => false,
     'created_at' => null,
@@ -19,7 +20,6 @@ class Bank extends Entity{
   ];
 
   protected $casts =[
-    'bank_order' => 'INT',
     'bank_show' => 'boolean'
   ];
 

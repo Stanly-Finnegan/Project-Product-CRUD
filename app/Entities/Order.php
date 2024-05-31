@@ -20,8 +20,6 @@ class Order extends Entity{
   ];
 
   protected $casts =[
-    'member_id' => 'INT',
-    'order_status ' => 'INT',
     'order_price' => 'float',
 
   ];

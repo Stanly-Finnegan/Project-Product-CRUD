@@ -19,9 +19,6 @@ class OrderItem extends Entity{
   ];
 
   protected $casts =[
-    'order_item_quantity ' => 'INT',
-    'order_id ' => 'INT',
-    'product_id ' => 'INT',
     'order_item_total_price' => 'float',
 
   ];

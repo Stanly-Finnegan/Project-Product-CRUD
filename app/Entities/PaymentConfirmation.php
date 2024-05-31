@@ -25,14 +25,9 @@ class PaymentConfirmation extends Entity{
   ];
 
   protected $casts =[
-    'order_id' => 'INT',
-    'bank_id' => 'INT',
-    'member_id' => 'INT',
-    'paymeny_confirmation_order' => 'INT',
     'paymeny_confirmation_show' => 'boolean',
     'paymeny_confirmation_total_payment' => 'float',
-    'paymeny_confirmation_status' => 'INT',
-    'payment_confirmation_transfer_date' => 'date',
+    // 'payment_confirmation_transfer_date' => 'date',
 
 
   ];

@@ -1,6 +1,7 @@
 <?php 
 
-namespace App\Controllers;
+namespace App\Controllers\Head;
+use App\Controllers\BaseController;
 
 use App\Models\AdminModel;
 use App\Models\AdminTokenModel;

@@ -20,7 +20,6 @@ class ProductImage extends Entity{
 
   protected $casts =[
     'product_image_show' => 'boolean',
-    'product_id' => 'INT',
   ];
 
 }

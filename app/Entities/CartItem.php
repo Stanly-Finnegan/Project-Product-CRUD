@@ -20,9 +20,6 @@ class CartItem extends Entity{
   ];
 
   protected $casts =[
-    'cart_item_quantity ' => 'INT',
-    'cart_id ' => 'INT',
-    'product_id ' => 'INT',
     'cart_item_total_price' => 'float',
     'cart_item_price' => 'float',
 

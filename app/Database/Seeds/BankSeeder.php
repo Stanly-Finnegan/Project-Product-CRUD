@@ -13,6 +13,7 @@ class BankSeeder extends Seeder
             'bank_uuid' => Uuid::uuid4(),
             'bank_name' => 'BCA',
             'bank_account_number' => '123456789',
+            'bank_account_name' => 'Budi',
             'bank_order' => 1,
             'bank_show' => true,
             'created_at' => date('Y-m-d H:i:s'),

@@ -1,40 +1,33 @@
 <?php 
 
-namespace App\Controllers;
-
+namespace App\Controllers\Head;
+use App\Controllers\BaseController;
+use App\Controllers\Helpers\SessionController;
 use App\Entities\OrderItem;
 use App\Entities\Product;
 use App\Models\AdminTokenModel;
+use App\Models\BankModel;
+use App\Models\MemberModel;
 use App\Models\OrderItemModel;
 use App\Models\OrderModel;
+use App\Models\PaymentConfirmationModel;
 use App\Models\ProductImageModel;
 use App\Models\ProductModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\DataCaster\Cast\BooleanCast;
 use Config\Database;
 use PhpParser\Node\Expr\Cast\Bool_;
+use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\Echo_;
 use Ramsey\Uuid\Type\Integer;
 use Ramsey\Uuid\Uuid;
 
 use function PHPUnit\Framework\isNull;
 
-class DataAdminController extends BaseController{
+class DataAdminController extends SessionController{
 
   use ResponseTrait;
 
-  function _checkAuthorization() {
-    $bearerToken = $this->request->getHeaderLine('Authorization');
-
-    if((string) $bearerToken !== '' && (string) $bearerToken !== null){
-      $explodeBearerToken = explode(' ', $bearerToken);
-
-      if($explodeBearerToken[0] === 'Bearer'){
-        return $explodeBearerToken[1];
-      }
-    }
-    return false;
-  }
 
   public function insertProduct () {
     $validatoin = \Config\Services::Validation();
@@ -507,6 +500,348 @@ class DataAdminController extends BaseController{
     return $this->respond('Success delete data');
 
   }
+
+  public function getPayment ($data){
+    if(!$this->_checkAuthorization('admin'))   {
+      return $this->fail('Unauthorized');
+    } 
+
+    $orderModel = new OrderModel();
+    $orderData = $orderModel->where('order_number', $data)->first();
+    $orderID = $orderData->order_id;
+
+    $paymentModel = new PaymentConfirmationModel();
+    $paymentData = $paymentModel->where('order_id', $orderID)->findAll();
+
+    $bankModel = new BankModel();
+
+    $result = [];
+    foreach($paymentData as $item){
+      $bankID = $item->bank_id;
+      $bankData = $bankModel->where('bank_id', $bankID)->first();
+     
+
+      $statusString = $this->validateStatustoString('status',$item->payment_confirmation_status);
+
+      // array_push($result,[
+      //   'bankName' => $bankData->bank_name,
+      //   'bankNumber' => $bankData->bank_account_number,
+      //   'transfer_to' => $bankData->bank_name . ' - ' . $bankData->bank_account_number,
+      //   'bank' => $item->payment_confirmation_bank_name,
+      //   'acc_name' => $item->payment_confirmation_account_name,
+      //   'acc_number' => $item->payment_confirmation_account_number,
+      //   'tf_date' => $item->payment_confirmation_transfer_date,
+      //   'status_code' => $item->payment_confirmation_status,
+      //   'status' => $statusString
+      // ]);
+
+      array_push($result,[
+        'orderTime' => date($orderData->created_at),
+        'totalPrice' => $orderData->order_total_price,
+        'bankName' => $bankData->bank_name,
+        'bankNumber' => $bankData->bank_account_number,
+        'transfer_to' => $bankData->bank_name . ' - ' . $bankData->bank_account_number,
+        'bank' => $item->payment_confirmation_bank_name,
+        'acc_name' => $item->payment_confirmation_account_name,
+        'acc_number' => $item->payment_confirmation_account_number,
+        'tf_date' => $item->payment_confirmation_transfer_date,
+        'status_code' => $item->payment_confirmation_status,
+        'status' => $statusString,
+        'totalPayment' => $item->payment_confirmation_total_payment,
+        'receipt' => $item->payment_confirmation_receipt,
+        'id' => $item->payment_confirmation_uuid
+      ]);
+    }
+
+    if(count($result) === 0){
+      return $this->fail('Fail to Get Payment Data');
+    }
+    
+    return $this->respond($result);
+  }
+
+  public function updatePaymentStatus(){
+    if(!$this->_checkAuthorization('admin'))   {
+      return $this->fail('Unauthorized');
+    } 
+
+    $put_data = $this->request->getRawInput();
+
+    $orderModel = new OrderModel();
+    $orderData = $orderModel->where('order_number', $put_data['orderNumber'])->first();
+    $orderID = $orderData->order_id;
+
+    $paymentConfirmModel = new PaymentConfirmationModel();
+
+    if($paymentConfirmModel
+        ->where('order_id',$orderID )
+        ->where('payment_confirmation_uuid', $put_data['id'])
+        ->update(null,['payment_confirmation_status' => $put_data['newStat']])
+        )
+    {
+      return $this->respond('Success to update payment status to '. $this->validateStatustoString('status',$put_data['newStat']));
+    }
+
+  }
+
+
+  public function getMemberData(){
+    if(!$this->_checkAuthorization('admin'))   {
+      return $this->fail('Unauthorized');
+    }
+    $memberModel = new MemberModel();
+    $memberData = $memberModel->findAll();
+
+
+    $result = [];
+    foreach($memberData as $data){
+      array_push($result,[
+        'id' => $data->member_uuid,
+        'name' => $data->member_name,
+        'email' => $data->member_email,
+        'phone' => $data->member_phone,
+        'status_code' => $data->member_active,
+        'status'=> $this->validateStatustoString('active',$data->member_active)
+
+      ]);
+    }
+
+    if(!$result){
+      return $this->fail('Fail to load member data');
+    }
+
+    return $this->respond($result);
+  }
+
+  public function updateMemberStatus(){
+    if(!$this->_checkAuthorization('admin'))   {
+      return $this->fail('Unauthorized');
+    } 
+
+    $put_data = $this->request->getRawInput();
+
+    $memberModel = new MemberModel();
+
+    if($memberModel
+        ->where('member_uuid',$put_data['id'] )
+        ->update(null,['member_active' => $put_data['newStat']])
+        )
+    {
+      return $this->respond('Success to update payment status to '. $this->validateStatustoString('active',$put_data['newStat']));
+    }
+
+  }
+
+  public function getMemberDetailData($data){
+    if(!$this->_checkAuthorization('admin'))   {
+      return $this->fail('Unauthorized');
+    }
+    $memberModel = new MemberModel();
+    $memberData = $memberModel->where('member_uuid', $data)->first();
+    $memberID = $memberData->member_id;
+
+    $orderModel = new OrderModel();
+    $orderData = $orderModel->where('member_id', $memberID)->findAll();
+
+
+    // $paymentModel = new PaymentConfirmationModel();
+
+
+    // $bankModel = new BankModel();
+
+    $memberResult = [
+      'email' => $memberData->member_email,
+      'name' => $memberData->member_name,
+      'phone' => $memberData->member_phone,
+      'status_code' => $memberData->member_active,
+      'status' => $this->validateStatustoString('active', $memberData->member_active)
+    ];
+
+
+
+
+    $result = [];
+    foreach($orderData as $value){
+      // $paymentLastData = $paymentModel->where('order_id', $value->order_id)->orderBy('updated_at', 'DESC')->first();
+
+      // $bankID = $paymentLastData->bank_id;
+
+      // $statusString = $this->validateStatustoString('status',$paymentLastData->payment_confirmation_status);
+      // $bankData = $bankModel->where('bank_id', $bankID)->first();
+
+      // $paymentResult = [
+      //   'orderTime' => date($value->created_at),
+      //   'totalPrice' => $value->order_total_price,
+      //   'bankName' => $bankData->bank_name,
+      //   'bankNumber' => $bankData->bank_account_number,
+      //   'transfer_to' => $bankData->bank_name . ' - ' . $bankData->bank_account_number,
+      //   'bank' => $paymentLastData->payment_confirmation_bank_name,
+      //   'acc_name' => $paymentLastData->payment_confirmation_account_name,
+      //   'acc_number' => $paymentLastData->payment_confirmation_account_number,
+      //   'tf_date' => $paymentLastData->payment_confirmation_transfer_date,
+      //   'status_code' => $paymentLastData->payment_confirmation_status,
+      //   'status' => $statusString,
+      //   'totalPayment' => $paymentLastData->payment_confirmation_total_payment,
+      //   'receipt' => $paymentLastData->payment_confirmation_receipt,
+      //   'id' => $paymentLastData->payment_confirmation_uuid
+      // ];
+
+      array_push($result,[
+        'id' => $value->order_id,
+        'order_number' => $value->order_number,
+        'date_time' => date($value->created_at),
+        'status' => $this->validateStatustoString('paid',$value->order_active),
+        'status_code' => $value->order_status,
+        'total_price' => $value->order_total_price,
+      ]);
+    }
+
+    if(!$result){
+      return $this->fail('Fail to load member data');
+    }
+
+    return $this->respond(['result'=>$result, 'account'=> $memberResult]);
+  }
+
+  public function getBankData(){
+    if(!$this->_checkAuthorization('admin')){
+      return $this->fail('Unauthorized');
+    }
+
+    $bankModel = new BankModel();
+    $bankData = $bankModel->findAll();
+
+
+    $result = [];
+
+    foreach($bankData as $data){
+      array_push($result,[
+        'id' => $data->bank_uuid,
+        'name' => $data->bank_name,
+        'acc_number' => $data->bank_account_number,
+        'acc_name' => $data->bank_account_name,
+        'status_code' => $data->bank_show,
+        'status' => $this->validateStatustoString('show',$data->bank_show)
+      ]);
+    }
+
+    if(!$bankData){
+      return $this->fail('Fail to load bank data');
+    }
+
+    return $this->respond($result);
+  }
+
+  public function bankStatusUpdate(){
+    $put_data = $this->request->getRawInput();
+    $bankModel = new BankModel();
+
+    if($bankModel->where('bank_uuid', $put_data['id'])->update(null,['bank_show' => $put_data['newStat']])){
+      return $this->respond('Bank status updated to '. $this->validateStatustoString('show', $put_data['newStat']) );
+    }
+
+    return $this->fail('Bank status updated failed');
+  }
+  public function getBankUpdateData ($id) {
+
+    if(!$this->_checkAuthorization('admin')){
+      return $this->fail('Unauthorized');
+    }
+    $bankModel = new BankModel();
+
+    $rawData = $bankModel->where('bank_uuid', $id)->first();
+
+    $data = [
+      'bankName' => $rawData->bank_name,
+      'accName' => $rawData->bank_account_name,
+      'accNumber' => $rawData->bank_account_number,
+      'status' =>  $this->validateStatustoString('show', $rawData->bank_show),
+      'status_code' =>   $rawData->bank_show
+    ];
+
+    if(!$data){
+        return $this->fail('No Data Found');
+    }
+
+    return $this->respond($data);
+    
+  }
+
+  public function updateBank (){
+    if(!$this->_checkAuthorization('admin')){
+      return $this->fail('Unauthorized');
+    }
+
+    $put_data = $this->request->getRawInput();
+    // var_dump($put_data);
+    // // echo($data['product_show']);
+    // die;
+
+    $bankModel = new BankModel();
+    $data = [
+      'bank_name' => $put_data['bankName'],
+      'bank_account_name' => $put_data['accName'],
+      'bank_account_number' => $put_data['accNumber'],
+      'bank_show' => $put_data['status'] === "Show" ? true : false ,
+    ];
+    
+
+  
+    if($bankModel->where('bank_uuid', $put_data['id'])->update(null, $data)){
+      return  $this->respond('Successfully update data!');
+    }
+    else{
+      return $this->fail('Failed to update data');
+    }
+
+
+  }
+
+  public function deleteBank ($id){
+
+    if(!$this->_checkAuthorization('admin')){
+      return $this->fail('Unauthorized');
+    }
+
+    $bankModel = new BankModel();
+
+    if($bankModel->where('bank_uuid', $id)->delete()){
+      return $this->respond('Success delete bank');;
+    }
+
+    return $this->fail('failed to delete bank');
+  }
+
+  public function insertBank(){
+
+    if(!$this->_checkAuthorization('admin')){
+      return $this->fail('Unauthorized');
+    }
+
+    $post_data = $this->request->getPost();
+
+    $bankModel = new BankModel();
+
+    $data =[
+      'bank_uuid' => Uuid::uuid4(),
+      'bank_name' => $post_data['bankName'],
+      'bank_account_number' => $post_data['accNumber'],
+      'bank_account_name' => $post_data['accName'],
+      'bank_order' => 1,
+      'bank_show' => $post_data['status'] === "Show" ? true : false ,
+      'created_at' => date('Y-m-d H:i:s'),
+      'updated_at' => null,
+      'deleted_at' => null,
+    ];
+
+    if($bankModel->insert($data)){
+      return $this->respond('Successfully insert data!');
+    }
+
+    return $this->fail('failed to insert data!');
+
+  }
+  
 
 }
 
